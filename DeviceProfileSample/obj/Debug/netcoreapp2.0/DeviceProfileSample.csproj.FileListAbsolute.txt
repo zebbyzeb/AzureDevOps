@@ -11,3 +11,4 @@ E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.A
 E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.AssemblyInfo.cs
 E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll
 E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.pdb
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\credentials.json
