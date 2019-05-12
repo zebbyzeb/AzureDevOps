@@ -1,0 +1,13 @@
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.dll.config
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.deps.json
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.runtimeconfig.json
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.runtimeconfig.dev.json
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.dll
+E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.pdb
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.csprojAssemblyReference.cache
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll.config
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.csproj.CoreCompileInputs.cache
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.AssemblyInfoInputs.cache
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.AssemblyInfo.cs
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll
+E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.pdb
