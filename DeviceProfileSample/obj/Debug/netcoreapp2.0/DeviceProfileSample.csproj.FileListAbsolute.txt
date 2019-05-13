@@ -12,3 +12,17 @@ E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.A
 E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll
 E:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.pdb
 E:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\credentials.json
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\credentials.json
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.dll.config
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.deps.json
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.runtimeconfig.json
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.runtimeconfig.dev.json
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.dll
+D:\AzureDevOps\DeviceProfileSample\bin\Debug\netcoreapp2.0\DeviceProfileSample.pdb
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.csprojAssemblyReference.cache
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll.config
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.csproj.CoreCompileInputs.cache
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.AssemblyInfoInputs.cache
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.AssemblyInfo.cs
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.dll
+D:\AzureDevOps\DeviceProfileSample\obj\Debug\netcoreapp2.0\DeviceProfileSample.pdb

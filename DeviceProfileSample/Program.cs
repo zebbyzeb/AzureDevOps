@@ -23,10 +23,6 @@ namespace DeviceProfileSample
     }
     public class Program
     {
-        //static string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
-        //static string ApplicationName = "Google Sheets API .NET Quickstart";
-
-
         //============= Config [Edit these with your settings] =====================
         internal const string vstsCollectionUrl = "https://dev.azure.com/appstablishment/"; //change to the URL of your VSTS account; NOTE: This must use HTTPS
         const string vsrmCollectionUrl = "https://vsrm.dev.azure.com/appstablishment/";
@@ -70,14 +66,14 @@ namespace DeviceProfileSample
             string pat = "2bjkoyzuxhwp5otnn2igv7btcsrzgaez3pqn3bzg2ujposwmsueq";
             var newPat = System.Text.Encoding.UTF8.GetBytes("user:" + pat);
             pat = System.Convert.ToBase64String(newPat);
-
             var bearerAuthHeader = new AuthenticationHeaderValue("Basic", pat);
 
+
+            ///Getting list of 
+            ///workitemID strings from
+            ///Preprod Synkd Cloud Services (definitionId=5)
             var response = await ListReleases(bearerAuthHeader);
-            //Console.WriteLine( response.value.Count());
-
             var workItemsList = new List<string>();
-
             foreach (var release in response.value)
             {
                 var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
@@ -90,54 +86,47 @@ namespace DeviceProfileSample
                 {
                     workItemsList.Add(work.id);
                 }
-
-                //foreach (var item in workItemsList)
-                //{
-                //    await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                //}
             }
 
 
-            //-------------------------------------------------------
+            ///Getting list of
+            ///workitemID stringsProd
+            ///Prod Synkd Cloud Services (definitionId=6)
+            var responseProd = await ListReleasesInProd(bearerAuthHeader);
+            var prodWorkItemsList = new List<string>();
+            foreach (var release in responseProd.value)
+            {
+                var prodReleaseRes = await GetProdReleaseById(bearerAuthHeader, release.id);
 
-            //UserCredential credential;
+                var buildID = Int32.Parse(prodReleaseRes.artifacts.First().definitionReference.version.id);
 
-            //using (var stream =
-            //    new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
-            //{
-            //    // The file token.json stores the user's access and refresh tokens, and is created
-            //    // automatically when the authorization flow completes for the first time.
-            //    string credPath = "token.json";
-            //    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-            //        GoogleClientSecrets.Load(stream).Secrets,
-            //        Scopes,
-            //        "user",
-            //        CancellationToken.None,
-            //        new FileDataStore(credPath, true)).Result;
-            //    Console.WriteLine("Credential file saved to: " + credPath);
-            //}
+                var prodWorkItems = await ListProdWorkItems(bearerAuthHeader, buildID);
 
-
-            //// Create Google Sheets API service.
-            //var service = new SheetsService(new BaseClientService.Initializer()
-            //{
-            //    HttpClientInitializer = credential,
-            //    ApplicationName = ApplicationName,
-            //});
-
-            //var range = "Work Data!A:F";
-            //var valueRange = new ValueRange();
-
-            //var oblist = new List<object>() { "Hello!", "This", "was", "insertd", "via", "C#" };
-            //valueRange.Values = new List<IList<object>> { oblist };
-
-            //var appendRequest = service.Spreadsheets.Values.Append(valueRange, "1234", range);
-            //appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-            //var appendReponse = appendRequest.Execute();
-
-            //-------------------------------------------------------
+                foreach(var prodWork in prodWorkItems.value)
+                {
+                    prodWorkItemsList.Add(prodWork.id);
+                }
+            }
 
 
+            Console.WriteLine("Count of workitems in preprod + prod: " + workItemsList.Count);//before comparing
+            Console.WriteLine(prodWorkItemsList.Count);
+            foreach(var pItem in prodWorkItemsList)
+            {
+                for(var i=0; i < workItemsList.Count; i++)
+                {
+                    if (string.Compare(pItem, workItemsList[i]) == 0)
+                    {
+                        workItemsList.Remove(workItemsList[i]);
+                    }
+                }
+            }
+            Console.WriteLine("Count of workitems in preprod: " + workItemsList.Count);//After Comparing
+
+
+            ///print the list of workitems in preprod,
+            ///with areapath, iteration,
+            ///item type and status
             int count = 1;
             foreach (var item in workItemsList)
             {
@@ -152,15 +141,92 @@ namespace DeviceProfileSample
                 //unassigned work items are throwing null exception
             }
 
+            Console.WriteLine("---------------------\n---------------------");
 
+            int countProdItem = 1;
+            foreach (var item in prodWorkItemsList)
+            {
+                Console.WriteLine(item);
+            }
+            foreach (var item in prodWorkItemsList)
+            {
+                var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                var fields = workByIdRes.fields;
+                Console.WriteLine(countProdItem + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                countProdItem++;
+                //unassigned work items are throwing null exception
+            }
 
-            //var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
+            //await ListProjects(bearerAuthHeader);
+        }
 
+        static async Task<Response<WorkItems>> ListProdWorkItems(AuthenticationHeaderValue authHeader, int buildID)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(vstsCollectionUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Authorization = authHeader;
 
-            //await ListWorkItems(bearerAuthHeader, buildID);
+                // connect to the REST endpoint            
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/build/builds/{buildID}/workitems?$top=100&api-version=5.0");
 
+                // check to see if we have a succesfull response
+                if (response.IsSuccessStatusCode)
+                {
+                    Response<WorkItems> workItem = null;
+                    workItem = await response.Content.ReadAsAsync<Response<WorkItems>>();
+                    return workItem;
+                }
+                return null;
+            }
+        }
 
-            await ListProjects(bearerAuthHeader);
+        static async Task<Release> GetProdReleaseById(AuthenticationHeaderValue authHeader, int id)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(vsrmCollectionUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Authorization = authHeader;
+
+                // connect to the REST endpoint            
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/release/releases/{id}?api-version=5.0");
+
+                // check to see if we have a succesfull respond
+                if (response.IsSuccessStatusCode)
+                {
+                    Release release = null;
+                    release = await response.Content.ReadAsAsync<Release>();
+                    return release;
+                }
+                return null;
+            }
+        }
+
+        static async Task<Response<Releases>> ListReleasesInProd(AuthenticationHeaderValue authHeader)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(vsrmCollectionUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Authorization = authHeader;
+
+                // connect to the REST endpoint            
+                HttpResponseMessage response = await client.GetAsync("appstablishment/_apis/release/releases?definitionId=6&$top=100&api-version=5.0");
+
+                // check to see if we have a succesfull respond
+                if (response.IsSuccessStatusCode)
+                {
+                    Response<Releases> res = null;
+                    res = await response.Content.ReadAsAsync<Response<Releases>>();
+                    return res;
+                }
+                return null;
+            }
         }
 
         static async Task<WorkItem> GetWorkById(AuthenticationHeaderValue authHeader, int id)
@@ -231,24 +297,6 @@ namespace DeviceProfileSample
                 return null;
             }
         }
-
-        //private static AuthenticationContext GetAuthenticationContext(string tenant)
-        //{
-        //    AuthenticationContext ctx = null;
-        //    if (tenant != null)
-        //        ctx = new AuthenticationContext("https://login.microsoftonline.com/" + tenant);
-        //    else
-        //    {
-        //        ctx = new AuthenticationContext("https://login.windows.net/common");
-        //        if (ctx.TokenCache.Count > 0)
-        //        {
-        //            string homeTenant = ctx.TokenCache.ReadItems().First().TenantId;
-        //            ctx = new AuthenticationContext("https://login.microsoftonline.com/" + homeTenant);
-        //        }
-        //    }
-
-        //    return ctx;
-        //}
 
         static async Task<Response<Releases>> ListReleases(AuthenticationHeaderValue authHeader)
         {
