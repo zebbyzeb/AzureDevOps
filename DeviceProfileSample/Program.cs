@@ -118,6 +118,7 @@ namespace DeviceProfileSample
                     if (string.Compare(pItem, workItemsList[i]) == 0)
                     {
                         workItemsList.Remove(workItemsList[i]);
+                        break;
                     }
                 }
             }
@@ -170,7 +171,7 @@ namespace DeviceProfileSample
                 client.DefaultRequestHeaders.Authorization = authHeader;
 
                 // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/build/builds/{buildID}/workitems?$top=100&api-version=5.0");
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/build/builds/{buildID}/workitems?$top=200&api-version=5.0");
 
                 // check to see if we have a succesfull response
                 if (response.IsSuccessStatusCode)
@@ -216,7 +217,7 @@ namespace DeviceProfileSample
                 client.DefaultRequestHeaders.Authorization = authHeader;
 
                 // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync("appstablishment/_apis/release/releases?definitionId=6&$top=100&api-version=5.0");
+                HttpResponseMessage response = await client.GetAsync("appstablishment/_apis/release/releases?definitionId=6&$top=1000&api-version=5.0");
 
                 // check to see if we have a succesfull respond
                 if (response.IsSuccessStatusCode)
@@ -262,7 +263,7 @@ namespace DeviceProfileSample
                 client.DefaultRequestHeaders.Authorization = authHeader;
 
                 // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/build/builds/{buildID}/workitems?$top=100&api-version=5.0");
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/build/builds/{buildID}/workitems?$top=200&api-version=5.0");
 
                 // check to see if we have a succesfull response
                 if (response.IsSuccessStatusCode)
