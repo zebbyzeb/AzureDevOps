@@ -25,5 +25,7 @@ namespace DeviceProfileSample.Models
         public object tags { get; set; }
         public ProjectReference projectReference { get; set; }
         public object properties { get; set; }
+
+        //public List<Release> ReleasesList { get; set; }
     }
 }

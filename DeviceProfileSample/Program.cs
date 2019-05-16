@@ -68,25 +68,114 @@ namespace DeviceProfileSample
             pat = System.Convert.ToBase64String(newPat);
             var bearerAuthHeader = new AuthenticationHeaderValue("Basic", pat);
 
+            Console.WriteLine("What release do you want the work items for?\n" +
+                "Type 1 and press Enter for Preprod ASWeb\n" +
+                "Type 2 for Preprod ASServer\n");
+            var selection = Convert.ToInt32(Console.ReadLine());
+
+            int preProdReleaseDefinitionID = 0;     //placeholder value
+            int testReleaseDefinitionID = 0;        //placeholder value
+            int prodReleaseDefinitionID = 0;        //placeholder value
+            Nullable<int> prodSynkdDefEnvID = null;
+            Nullable<int> preProdDefEnvID = null;
+            switch (selection)
+            {
+                case 1:
+                    preProdReleaseDefinitionID = 3;     //ASWeb_Master
+                    testReleaseDefinitionID = 2;        //ASWeb_Test
+                    prodSynkdDefEnvID = 8;              //ASWeb_Master Prod_Synkd Stage
+                    preProdDefEnvID = 3;
+                    break;
+                case 2:
+                    preProdReleaseDefinitionID = 5;
+                    prodReleaseDefinitionID = 6;
+                    break;
+                default:
+                    Console.WriteLine("Please choose one of the given options.");
+                    break;
+            }
+            Console.WriteLine("Getting your workitems now\n" +
+                string.Concat(Enumerable.Repeat("---", 10)));
+
+            List<string> preProdWorkItemsList = new List<string>();
+            List<string> prodSynkdWorkItemsList = new List<string>();
+            List<string> filteredWorkItems = new List<string>();
+
+            if (selection == 1)
+            {
+                preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, preProdDefEnvID).Result;
+                prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, prodSynkdDefEnvID).Result;
+                filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
+
+                int count = 1;
+                foreach (var item in filteredWorkItems)
+                {
+                    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                    var fields = workByIdRes.fields;
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                    count++;
+                    //unassigned work items are throwing null exception
+                }
+            }
+
+            if (selection == 2)
+            {
+                preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, null).Result;
+                prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, prodReleaseDefinitionID, null).Result;
+                filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
+
+                int count = 1;
+                foreach (var item in filteredWorkItems)
+                {
+                    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                    var fields = workByIdRes.fields;
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                    count++;
+                    //unassigned work items are throwing null exception
+                }
+            }
+
 
             ///Getting list of 
             ///workitemID strings from
-            ///Preprod Synkd Cloud Services (definitionId=5)
-            var response = await ListReleases(bearerAuthHeader);
-            var workItemsList = new List<string>();
-            foreach (var release in response.value)
+            ///Preprod Synkd Cloud Services (definitionID = 5)
+            ///OR ASWeb_Master (definitionID = 3)
+            //var preProdWorkItemsList = new List<string>();
+            //var response = await ListReleases(bearerAuthHeader, preProdReleaseDefinitionID, preProdDefEnvID);
+
+            //foreach (var release in response.value)
+            //{
+            //    var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
+            //    var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
+            //    var workItemsRes = await ListWorkItems(bearerAuthHeader, buildID);
+            //    foreach (var work in workItemsRes.value)
+            //    {
+            //        preProdWorkItemsList.Add(work.id);
+            //    }
+            //}
+
+
+            ///Getting list of
+            ///workitemID stringsProd
+            ///TestASWeb (definitionId = 2)
+            ///
+            var responseTest = await ListTestReleases(bearerAuthHeader, testReleaseDefinitionID);
+            var testWorkItemsList = new List<string>();
+            foreach (var release in responseTest.value)
             {
                 var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
-
                 var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
-
-                var workItemsRes = await ListWorkItems(bearerAuthHeader, buildID);
-
-                foreach (var work in workItemsRes.value)
+                var testWorkItems = await ListWorkItems(bearerAuthHeader, buildID);
+                foreach (var work in testWorkItems.value)
                 {
-                    workItemsList.Add(work.id);
+                    testWorkItemsList.Add(work.id);
                 }
             }
+
+            Console.WriteLine("-------------------------");
+            foreach(var item in testWorkItemsList)
+                Console.WriteLine(item);
+
 
 
             ///Getting list of
@@ -109,36 +198,35 @@ namespace DeviceProfileSample
             }
 
 
-            Console.WriteLine("Count of workitems in preprod + prod: " + workItemsList.Count);//before comparing
+            Console.WriteLine("Count of workitems in preprod + prod: " + preProdWorkItemsList.Count);//before comparing
             Console.WriteLine(prodWorkItemsList.Count);
             foreach(var pItem in prodWorkItemsList)
             {
-                for(var i=0; i < workItemsList.Count; i++)
+                for(var i=0; i < preProdWorkItemsList.Count; i++)
                 {
-                    if (string.Compare(pItem, workItemsList[i]) == 0)
+                    if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
                     {
-                        workItemsList.Remove(workItemsList[i]);
-                        break;
+                        preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
                     }
                 }
             }
-            Console.WriteLine("Count of workitems in preprod: " + workItemsList.Count);//After Comparing
+            Console.WriteLine("Count of workitems in preprod: " + preProdWorkItemsList.Count);//After Comparing
 
 
             ///print the list of workitems in preprod,
             ///with areapath, iteration,
             ///item type and status
-            int count = 1;
-            foreach (var item in workItemsList)
+            int countPreProd = 1;
+            foreach (var item in preProdWorkItemsList)
             {
                 Console.WriteLine(item);
             }
-            foreach (var item in workItemsList)
+            foreach (var item in preProdWorkItemsList)
             {
                 var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
                 var fields = workByIdRes.fields;
-                Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
-                count++;
+                Console.WriteLine(countPreProd + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                countPreProd++;
                 //unassigned work items are throwing null exception
             }
 
@@ -159,6 +247,62 @@ namespace DeviceProfileSample
             }
 
             //await ListProjects(bearerAuthHeader);
+        }
+
+        private static List<string> GetPreprodWorkItems(List<string> preProdWorkItemsList, List<string> prodSynkdWorkItemsList)
+        {
+            foreach (var pItem in prodSynkdWorkItemsList)
+            {
+                for (var i = 0; i < preProdWorkItemsList.Count; i++)
+                {
+                    if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
+                    {
+                        preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
+                    }
+                }
+            }
+            return preProdWorkItemsList;
+        }
+
+        private static async Task<List<string>> GetWorkItems(AuthenticationHeaderValue bearerAuthHeader, int preProdReleaseDefinitionID, int? preProdDefEnvID)
+        {
+            var preProdWorkItemsList = new List<string>();
+            var response = await ListReleases(bearerAuthHeader, preProdReleaseDefinitionID, preProdDefEnvID);
+
+            foreach (var release in response.value)
+            {
+                var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
+                var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
+                var workItemsRes = await ListWorkItems(bearerAuthHeader, buildID);
+                foreach (var work in workItemsRes.value)
+                {
+                    preProdWorkItemsList.Add(work.id);
+                }
+            }
+            return preProdWorkItemsList;
+        }
+
+        static async Task<Response<Releases>> ListTestReleases(AuthenticationHeaderValue authHeader, int testReleaseDefinitionID)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(vsrmCollectionUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Authorization = authHeader;
+
+                // connect to the REST endpoint            
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/release/releases?definitionId={testReleaseDefinitionID}&$top=1000&api-version=5.0");
+
+                // check to see if we have a succesfull respond
+                if (response.IsSuccessStatusCode)
+                {
+                    Response<Releases> res = null;
+                    res = await response.Content.ReadAsAsync<Response<Releases>>();
+                    return res;
+                }
+                return null;
+            }
         }
 
         static async Task<Response<WorkItems>> ListProdWorkItems(AuthenticationHeaderValue authHeader, int buildID)
@@ -299,7 +443,7 @@ namespace DeviceProfileSample
             }
         }
 
-        static async Task<Response<Releases>> ListReleases(AuthenticationHeaderValue authHeader)
+        static async Task<Response<Releases>> ListReleases(AuthenticationHeaderValue authHeader, int releaseDefinitionID, Nullable<int> defEnvID)
         {
             using (var client = new HttpClient())
             {
@@ -308,8 +452,13 @@ namespace DeviceProfileSample
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = authHeader;
 
-                // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync("appstablishment/_apis/release/releases?definitionId=5&$top=100&api-version=5.0");
+                HttpResponseMessage response;
+
+                // connect to the REST endpoint 
+                if (defEnvID != null)                
+                    response = await client.GetAsync($"appstablishment/_apis/release/releases?definitionEnvironmentId={defEnvID}&definitionId={releaseDefinitionID}&$top=100&api-version=5.0");
+                else
+                    response = await client.GetAsync($"appstablishment/_apis/release/releases?definitionId={releaseDefinitionID}&$top=100&api-version=5.0");
 
                 // check to see if we have a succesfull respond
                 if (response.IsSuccessStatusCode)
