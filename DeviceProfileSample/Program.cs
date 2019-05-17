@@ -107,12 +107,40 @@ namespace DeviceProfileSample
                 prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, prodSynkdDefEnvID).Result;
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
 
-                int count = 1;
+
+                int count = 1;                
                 foreach (var item in filteredWorkItems)
                 {
+                    List<string> parentURL = new List<string>();
+
                     var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
                     var fields = workByIdRes.fields;
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                    if (fields.WorkItemType == "Product Backlog Item")
+                        fields.WorkItemType = "PBI";
+                    if (fields.State == "Ready for Testing")
+                        fields.State = "Ready";
+                    if (fields.WorkItemType == "Bug")
+                    {
+                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                        
+                        foreach(var x in workByIdRes.relations)
+                        {
+                            if (x.rel == "System.LinkTypes.Related")
+                                Console.WriteLine(x.url);
+                        }
+                        
+                    }
+                    else if (fields.WorkItemType == "Task")
+                    {
+                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+
+                        foreach (var x in workByIdRes.relations)
+                        {
+                            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                                Console.WriteLine(x.url);
+                        }
+                    }
+                    //Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
                     count++;
                     //unassigned work items are throwing null exception
                 }
@@ -129,7 +157,11 @@ namespace DeviceProfileSample
                 {
                     var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
                     var fields = workByIdRes.fields;
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                    if (fields.WorkItemType == "Product Backlog Item")
+                        fields.WorkItemType = "PBI";
+                    if (fields.State == "Ready for Testing")
+                        fields.State = "Ready";
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
                     count++;
                     //unassigned work items are throwing null exception
                 }
@@ -384,7 +416,7 @@ namespace DeviceProfileSample
                 client.DefaultRequestHeaders.Authorization = authHeader;
 
                 // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/wit/workitems/{id}?api-version=5.0");
+                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/wit/workitems/{id}?$expand=all&api-version=5.0");
 
                 // check to see if we have a succesfull response
                 if (response.IsSuccessStatusCode)
