@@ -106,6 +106,7 @@ namespace DeviceProfileSample
                 preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, preProdDefEnvID).Result;
                 prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, prodSynkdDefEnvID).Result;
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
+                filteredWorkItems = filteredWorkItems.Distinct().ToList();
 
 
                 //int count = 1;                
@@ -122,7 +123,7 @@ namespace DeviceProfileSample
                 //    if (fields.WorkItemType == "Bug")
                 //    {
                 //        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                        
+
                 //        foreach(var x in workByIdRes.relations)
                 //        {
                 //            if (x.rel == "System.LinkTypes.Related")
@@ -149,7 +150,7 @@ namespace DeviceProfileSample
                 //        count++;
                 //    }
                 //    //Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    
+
                 //    //unassigned work items are throwing null exception
                 //}
             }
@@ -157,22 +158,25 @@ namespace DeviceProfileSample
             if (selection == 2)
             {
                 preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, null).Result;
+                //preProdWorkItemsList = preProdWorkItemsList.Distinct().ToList();
                 prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, prodReleaseDefinitionID, null).Result;
+                //prodSynkdWorkItemsList = prodSynkdWorkItemsList.Distinct().ToList();
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
+                filteredWorkItems = filteredWorkItems.Distinct().ToList();
 
-                int count = 1;
-                foreach (var item in filteredWorkItems)
-                {
-                    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                    var fields = workByIdRes.fields;
-                    if (fields.WorkItemType == "Product Backlog Item")
-                        fields.WorkItemType = "PBI";
-                    if (fields.State == "Ready for Testing")
-                        fields.State = "Ready";
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    count++;
-                    //unassigned work items are throwing null exception
-                }
+                //int count = 1;
+                //foreach (var item in filteredWorkItems)
+                //{
+                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                //    var fields = workByIdRes.fields;
+                //    if (fields.WorkItemType == "Product Backlog Item")
+                //        fields.WorkItemType = "PBI";
+                //    if (fields.State == "Ready for Testing")
+                //        fields.State = "Ready";
+                //    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                //    count++;
+                //    //unassigned work items are throwing null exception
+                //}
             }
 
             await ConsoleDump(bearerAuthHeader,filteredWorkItems);
@@ -332,11 +336,18 @@ namespace DeviceProfileSample
                     }
                     count++;
                 }
+                else if(fields.WorkItemType == "PBI")
+                {
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                    count++;
+                }
             }
         }
 
         private static List<string> GetPreprodWorkItems(List<string> preProdWorkItemsList, List<string> prodSynkdWorkItemsList)
         {
+            //bool isFound = false;
+            
             foreach (var pItem in prodSynkdWorkItemsList)
             {
                 for (var i = 0; i < preProdWorkItemsList.Count; i++)
@@ -344,8 +355,12 @@ namespace DeviceProfileSample
                     if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
                     {
                         preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
+                        //isFound = true;
                     }
                 }
+                
+                //if(isFound)
+                //    prodSynkdWorkItemsList.Remove(prodSynkdWorkItemsList[j]);
             }
             return preProdWorkItemsList;
         }
