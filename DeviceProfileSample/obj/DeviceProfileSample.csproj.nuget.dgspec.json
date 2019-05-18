@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj": {}
+    "E:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj": {}
   },
   "projects": {
-    "D:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj": {
+    "E:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj",
+        "projectUniqueName": "E:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj",
         "projectName": "DeviceProfileSample",
-        "projectPath": "D:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj",
-        "packagesPath": "C:\\Users\\yash\\.nuget\\packages\\",
-        "outputPath": "D:\\AzureDevOps\\DeviceProfileSample\\obj\\",
+        "projectPath": "E:\\AzureDevOps\\DeviceProfileSample\\DeviceProfileSample.csproj",
+        "packagesPath": "C:\\Users\\zeb\\.nuget\\packages\\",
+        "outputPath": "E:\\AzureDevOps\\DeviceProfileSample\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\yash\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\zeb\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

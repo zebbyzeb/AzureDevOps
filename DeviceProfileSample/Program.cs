@@ -108,44 +108,52 @@ namespace DeviceProfileSample
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
 
 
-                int count = 1;                
-                foreach (var item in filteredWorkItems)
-                {
-                    List<string> parentURL = new List<string>();
+                //int count = 1;                
+                //foreach (var item in filteredWorkItems)
+                //{
+                //    List<string> parentURL = new List<string>();
 
-                    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                    var fields = workByIdRes.fields;
-                    if (fields.WorkItemType == "Product Backlog Item")
-                        fields.WorkItemType = "PBI";
-                    if (fields.State == "Ready for Testing")
-                        fields.State = "Ready";
-                    if (fields.WorkItemType == "Bug")
-                    {
-                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                //    var fields = workByIdRes.fields;
+                //    if (fields.WorkItemType == "Product Backlog Item")
+                //        fields.WorkItemType = "PBI";
+                //    if (fields.State == "Ready for Testing")
+                //        fields.State = "Ready";
+                //    if (fields.WorkItemType == "Bug")
+                //    {
+                //        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
                         
-                        foreach(var x in workByIdRes.relations)
-                        {
-                            if (x.rel == "System.LinkTypes.Related")
-                                Console.WriteLine(x.url);
-                        }
-                        
-                    }
-                    else if (fields.WorkItemType == "Task")
-                    {
-                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                //        foreach(var x in workByIdRes.relations)
+                //        {
+                //            if (x.rel == "System.LinkTypes.Related")
+                //            {
+                //                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                //                Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
 
-                        foreach (var x in workByIdRes.relations)
-                        {
-                            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
-                                Console.WriteLine(x.url);
-                        }
-                    }
-                    //Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    count++;
-                    //unassigned work items are throwing null exception
-                }
+                //            }
+                //        }
+                //        count++;
+                //    }
+                //    else if (fields.WorkItemType == "Task")
+                //    {
+                //        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+
+                //        foreach (var x in workByIdRes.relations)
+                //        {
+                //            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                //            {
+                //                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                //                Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+                //            }
+                //        }
+                //        count++;
+                //    }
+                //    //Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                    
+                //    //unassigned work items are throwing null exception
+                //}
             }
-
+            
             if (selection == 2)
             {
                 preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, null).Result;
@@ -167,6 +175,7 @@ namespace DeviceProfileSample
                 }
             }
 
+            await ConsoleDump(bearerAuthHeader,filteredWorkItems);
 
             ///Getting list of 
             ///workitemID strings from
@@ -279,6 +288,51 @@ namespace DeviceProfileSample
             }
 
             //await ListProjects(bearerAuthHeader);
+        }
+
+        private static async Task ConsoleDump(AuthenticationHeaderValue bearerAuthHeader, List<string> filteredWorkItems)
+        {
+            int count = 1;
+            foreach (var item in filteredWorkItems)
+            {
+                List<string> parentURL = new List<string>();
+
+                var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                var fields = workByIdRes.fields;
+                if (fields.WorkItemType == "Product Backlog Item")
+                    fields.WorkItemType = "PBI";
+                if (fields.State == "Ready for Testing")
+                    fields.State = "Ready";
+                if (fields.WorkItemType == "Bug")
+                {
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+
+                    foreach (var x in workByIdRes.relations)
+                    {
+                        if (x.rel == "System.LinkTypes.Related")
+                        {
+                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                            Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+
+                        }
+                    }
+                    count++;
+                }
+                else if (fields.WorkItemType == "Task")
+                {
+                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+
+                    foreach (var x in workByIdRes.relations)
+                    {
+                        if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                        {
+                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                            Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+                        }
+                    }
+                    count++;
+                }
+            }
         }
 
         private static List<string> GetPreprodWorkItems(List<string> preProdWorkItemsList, List<string> prodSynkdWorkItemsList)
@@ -406,24 +460,38 @@ namespace DeviceProfileSample
             }
         }
 
-        static async Task<WorkItem> GetWorkById(AuthenticationHeaderValue authHeader, int id)
+        static async Task<WorkItem> GetWorkById(AuthenticationHeaderValue authHeader, int? id, string url=null)
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(vstsCollectionUrl);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Authorization = authHeader;
-
-                // connect to the REST endpoint            
-                HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/wit/workitems/{id}?$expand=all&api-version=5.0");
-
-                // check to see if we have a succesfull response
-                if (response.IsSuccessStatusCode)
+                if (url == null)
                 {
-                    WorkItem workItem = null;
-                    workItem = await response.Content.ReadAsAsync<WorkItem>();
-                    return workItem;
+                    client.BaseAddress = new Uri(vstsCollectionUrl);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Authorization = authHeader;
+
+                    // connect to the REST endpoint            
+                    HttpResponseMessage response = await client.GetAsync($"appstablishment/_apis/wit/workitems/{id}?$expand=all&api-version=5.0");
+
+                    // check to see if we have a succesfull response
+                    if (response.IsSuccessStatusCode)
+                    {
+                        WorkItem workItem = null;
+                        workItem = await response.Content.ReadAsAsync<WorkItem>();
+                        return workItem;
+                    }
+                }
+                else
+                {
+                    client.DefaultRequestHeaders.Authorization = authHeader;
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        WorkItem workItem = null;
+                        workItem = await response.Content.ReadAsAsync<WorkItem>();
+                        return workItem;
+                    }
                 }
                 return null;
             }
