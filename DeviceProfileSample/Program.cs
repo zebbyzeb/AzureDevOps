@@ -108,96 +108,18 @@ namespace DeviceProfileSample
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
                 filteredWorkItems = filteredWorkItems.Distinct().ToList();
 
-
-                //int count = 1;                
-                //foreach (var item in filteredWorkItems)
-                //{
-                //    List<string> parentURL = new List<string>();
-
-                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                //    var fields = workByIdRes.fields;
-                //    if (fields.WorkItemType == "Product Backlog Item")
-                //        fields.WorkItemType = "PBI";
-                //    if (fields.State == "Ready for Testing")
-                //        fields.State = "Ready";
-                //    if (fields.WorkItemType == "Bug")
-                //    {
-                //        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-
-                //        foreach(var x in workByIdRes.relations)
-                //        {
-                //            if (x.rel == "System.LinkTypes.Related")
-                //            {
-                //                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                //                Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
-
-                //            }
-                //        }
-                //        count++;
-                //    }
-                //    else if (fields.WorkItemType == "Task")
-                //    {
-                //        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-
-                //        foreach (var x in workByIdRes.relations)
-                //        {
-                //            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
-                //            {
-                //                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                //                Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
-                //            }
-                //        }
-                //        count++;
-                //    }
-                //    //Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-
-                //    //unassigned work items are throwing null exception
-                //}
+                await ConsoleDump(bearerAuthHeader, filteredWorkItems);
             }
             
             if (selection == 2)
             {
                 preProdWorkItemsList = GetWorkItems(bearerAuthHeader, preProdReleaseDefinitionID, null).Result;
-                //preProdWorkItemsList = preProdWorkItemsList.Distinct().ToList();
                 prodSynkdWorkItemsList = GetWorkItems(bearerAuthHeader, prodReleaseDefinitionID, null).Result;
-                //prodSynkdWorkItemsList = prodSynkdWorkItemsList.Distinct().ToList();
                 filteredWorkItems = GetPreprodWorkItems(preProdWorkItemsList, prodSynkdWorkItemsList);
                 filteredWorkItems = filteredWorkItems.Distinct().ToList();
 
-                //int count = 1;
-                //foreach (var item in filteredWorkItems)
-                //{
-                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                //    var fields = workByIdRes.fields;
-                //    if (fields.WorkItemType == "Product Backlog Item")
-                //        fields.WorkItemType = "PBI";
-                //    if (fields.State == "Ready for Testing")
-                //        fields.State = "Ready";
-                //    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                //    count++;
-                //    //unassigned work items are throwing null exception
-                //}
+                await ConsoleDump(bearerAuthHeader, filteredWorkItems);
             }
-
-            await ConsoleDump(bearerAuthHeader,filteredWorkItems);
-
-            ///Getting list of 
-            ///workitemID strings from
-            ///Preprod Synkd Cloud Services (definitionID = 5)
-            ///OR ASWeb_Master (definitionID = 3)
-            //var preProdWorkItemsList = new List<string>();
-            //var response = await ListReleases(bearerAuthHeader, preProdReleaseDefinitionID, preProdDefEnvID);
-
-            //foreach (var release in response.value)
-            //{
-            //    var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
-            //    var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
-            //    var workItemsRes = await ListWorkItems(bearerAuthHeader, buildID);
-            //    foreach (var work in workItemsRes.value)
-            //    {
-            //        preProdWorkItemsList.Add(work.id);
-            //    }
-            //}
 
 
             ///Getting list of
@@ -307,6 +229,8 @@ namespace DeviceProfileSample
                     fields.WorkItemType = "PBI";
                 if (fields.State == "Ready for Testing")
                     fields.State = "Ready";
+                if (fields.Title.Length > 100)
+                    fields.Title = fields.Title.Substring(0, 100);
                 if (fields.WorkItemType == "Bug")
                 {
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
@@ -316,7 +240,7 @@ namespace DeviceProfileSample
                         if (x.rel == "System.LinkTypes.Related")
                         {
                             var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
 
                         }
                     }
@@ -331,7 +255,7 @@ namespace DeviceProfileSample
                         if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
                         {
                             var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            Console.WriteLine("\t\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
                         }
                     }
                     count++;
