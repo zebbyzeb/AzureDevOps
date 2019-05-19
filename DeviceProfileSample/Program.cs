@@ -13,6 +13,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System.IO;
 using System.Threading;
+using System.Text;
 
 namespace DeviceProfileSample
 {
@@ -122,96 +123,96 @@ namespace DeviceProfileSample
             }
 
 
-            ///Getting list of
-            ///workitemID stringsProd
-            ///TestASWeb (definitionId = 2)
-            ///
-            var responseTest = await ListTestReleases(bearerAuthHeader, testReleaseDefinitionID);
-            var testWorkItemsList = new List<string>();
-            foreach (var release in responseTest.value)
-            {
-                var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
-                var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
-                var testWorkItems = await ListWorkItems(bearerAuthHeader, buildID);
-                foreach (var work in testWorkItems.value)
-                {
-                    testWorkItemsList.Add(work.id);
-                }
-            }
+            /////Getting list of
+            /////workitemID stringsProd
+            /////TestASWeb (definitionId = 2)
+            /////
+            //var responseTest = await ListTestReleases(bearerAuthHeader, testReleaseDefinitionID);
+            //var testWorkItemsList = new List<string>();
+            //foreach (var release in responseTest.value)
+            //{
+            //    var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
+            //    var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
+            //    var testWorkItems = await ListWorkItems(bearerAuthHeader, buildID);
+            //    foreach (var work in testWorkItems.value)
+            //    {
+            //        testWorkItemsList.Add(work.id);
+            //    }
+            //}
 
-            Console.WriteLine("-------------------------");
-            foreach(var item in testWorkItemsList)
-                Console.WriteLine(item);
-
-
-
-            ///Getting list of
-            ///workitemID stringsProd
-            ///Prod Synkd Cloud Services (definitionId=6)
-            var responseProd = await ListReleasesInProd(bearerAuthHeader);
-            var prodWorkItemsList = new List<string>();
-            foreach (var release in responseProd.value)
-            {
-                var prodReleaseRes = await GetProdReleaseById(bearerAuthHeader, release.id);
-
-                var buildID = Int32.Parse(prodReleaseRes.artifacts.First().definitionReference.version.id);
-
-                var prodWorkItems = await ListProdWorkItems(bearerAuthHeader, buildID);
-
-                foreach(var prodWork in prodWorkItems.value)
-                {
-                    prodWorkItemsList.Add(prodWork.id);
-                }
-            }
+            //Console.WriteLine("-------------------------");
+            //foreach(var item in testWorkItemsList)
+            //    Console.WriteLine(item);
 
 
-            Console.WriteLine("Count of workitems in preprod + prod: " + preProdWorkItemsList.Count);//before comparing
-            Console.WriteLine(prodWorkItemsList.Count);
-            foreach(var pItem in prodWorkItemsList)
-            {
-                for(var i=0; i < preProdWorkItemsList.Count; i++)
-                {
-                    if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
-                    {
-                        preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
-                    }
-                }
-            }
-            Console.WriteLine("Count of workitems in preprod: " + preProdWorkItemsList.Count);//After Comparing
+
+            /////Getting list of
+            /////workitemID stringsProd
+            /////Prod Synkd Cloud Services (definitionId=6)
+            //var responseProd = await ListReleasesInProd(bearerAuthHeader);
+            //var prodWorkItemsList = new List<string>();
+            //foreach (var release in responseProd.value)
+            //{
+            //    var prodReleaseRes = await GetProdReleaseById(bearerAuthHeader, release.id);
+
+            //    var buildID = Int32.Parse(prodReleaseRes.artifacts.First().definitionReference.version.id);
+
+            //    var prodWorkItems = await ListProdWorkItems(bearerAuthHeader, buildID);
+
+            //    foreach(var prodWork in prodWorkItems.value)
+            //    {
+            //        prodWorkItemsList.Add(prodWork.id);
+            //    }
+            //}
 
 
-            ///print the list of workitems in preprod,
-            ///with areapath, iteration,
-            ///item type and status
-            int countPreProd = 1;
-            foreach (var item in preProdWorkItemsList)
-            {
-                Console.WriteLine(item);
-            }
-            foreach (var item in preProdWorkItemsList)
-            {
-                var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                var fields = workByIdRes.fields;
-                Console.WriteLine(countPreProd + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
-                countPreProd++;
-                //unassigned work items are throwing null exception
-            }
+            //Console.WriteLine("Count of workitems in preprod + prod: " + preProdWorkItemsList.Count);//before comparing
+            //Console.WriteLine(prodWorkItemsList.Count);
+            //foreach(var pItem in prodWorkItemsList)
+            //{
+            //    for(var i=0; i < preProdWorkItemsList.Count; i++)
+            //    {
+            //        if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
+            //        {
+            //            preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
+            //        }
+            //    }
+            //}
+            //Console.WriteLine("Count of workitems in preprod: " + preProdWorkItemsList.Count);//After Comparing
 
-            Console.WriteLine("---------------------\n---------------------");
 
-            int countProdItem = 1;
-            foreach (var item in prodWorkItemsList)
-            {
-                Console.WriteLine(item);
-            }
-            foreach (var item in prodWorkItemsList)
-            {
-                var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                var fields = workByIdRes.fields;
-                Console.WriteLine(countProdItem + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
-                countProdItem++;
-                //unassigned work items are throwing null exception
-            }
+            /////print the list of workitems in preprod,
+            /////with areapath, iteration,
+            /////item type and status
+            //int countPreProd = 1;
+            //foreach (var item in preProdWorkItemsList)
+            //{
+            //    Console.WriteLine(item);
+            //}
+            //foreach (var item in preProdWorkItemsList)
+            //{
+            //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+            //    var fields = workByIdRes.fields;
+            //    Console.WriteLine(countPreProd + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+            //    countPreProd++;
+            //    //unassigned work items are throwing null exception
+            //}
+
+            //Console.WriteLine("---------------------\n---------------------");
+
+            //int countProdItem = 1;
+            //foreach (var item in prodWorkItemsList)
+            //{
+            //    Console.WriteLine(item);
+            //}
+            //foreach (var item in prodWorkItemsList)
+            //{
+            //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+            //    var fields = workByIdRes.fields;
+            //    Console.WriteLine(countProdItem + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+            //    countProdItem++;
+            //    //unassigned work items are throwing null exception
+            //}
 
             //await ListProjects(bearerAuthHeader);
         }
@@ -221,6 +222,7 @@ namespace DeviceProfileSample
             int count = 1;
             foreach (var item in filteredWorkItems)
             {
+                var csv = new StringBuilder();
                 List<string> parentURL = new List<string>();
 
                 var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
@@ -234,14 +236,16 @@ namespace DeviceProfileSample
                 if (fields.WorkItemType == "Bug")
                 {
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-
+                    var newline = string.Format("{0},{1}",item,fields.Title);
+                    csv.AppendLine(newline);
                     foreach (var x in workByIdRes.relations)
                     {
                         if (x.rel == "System.LinkTypes.Related")
                         {
                             var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
                             Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
-
+                            var relatedline = string.Format("{0},{1},{2}", "Related", relatedWork.id, relatedWork.fields.Title);
+                            csv.AppendLine(newline);
                         }
                     }
                     count++;
@@ -265,6 +269,7 @@ namespace DeviceProfileSample
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
                     count++;
                 }
+                File.AppendAllText("OutputCSV.csv", csv.ToString());
             }
         }
 
