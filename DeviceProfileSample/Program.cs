@@ -220,32 +220,67 @@ namespace DeviceProfileSample
         private static async Task ConsoleDump(AuthenticationHeaderValue bearerAuthHeader, List<string> filteredWorkItems)
         {
             int count = 1;
+            var csv = new StringBuilder();
+
+            csv.AppendLine(string.Format("{0},{1},{2},{3},{4}", "\t", "WorkItemID", "WorkItemType", "State", "Title"));
+
             foreach (var item in filteredWorkItems)
             {
-                var csv = new StringBuilder();
+                
                 List<string> parentURL = new List<string>();
 
                 var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
                 var fields = workByIdRes.fields;
-                if (fields.WorkItemType == "Product Backlog Item")
-                    fields.WorkItemType = "PBI";
+                //if (fields.WorkItemType == "Product Backlog Item")
+                //    fields.WorkItemType = "PBI";
                 if (fields.State == "Ready for Testing")
                     fields.State = "Ready";
-                if (fields.Title.Length > 100)
-                    fields.Title = fields.Title.Substring(0, 100);
+                //if (fields.Title.Length > 100)
+                //    fields.Title = fields.Title.Substring(0, 100);
+                var title = fields.Title.Replace(",", "");
                 if (fields.WorkItemType == "Bug")
                 {
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    var newline = string.Format("{0},{1}",item,fields.Title);
+                    var newline = string.Format("{0},{1},{2},{3},{4}","Base",item,fields.WorkItemType,fields.State,title);
                     csv.AppendLine(newline);
                     foreach (var x in workByIdRes.relations)
                     {
                         if (x.rel == "System.LinkTypes.Related")
                         {
                             var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
-                            var relatedline = string.Format("{0},{1},{2}", "Related", relatedWork.id, relatedWork.fields.Title);
-                            csv.AppendLine(newline);
+                            //if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                            //    fields.WorkItemType = "PBI";
+                            if (relatedWork.fields.WorkItemType == "Test Case")
+                                continue;
+                            if (relatedWork.fields.State == "Ready for Testing")
+                                relatedWork.fields.State = "Ready";
+                            var relTitle = relatedWork.fields.Title.Replace(",", "");
+
+                            if(relatedWork.fields.WorkItemType == "Product Backlog Item")
+                            {
+                                Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
+
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                csv.AppendLine(relatedline);
+                            }
+                            else if(relatedWork.fields.WorkItemType == "Bug")
+                            {
+                                Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
+
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                csv.AppendLine(relatedline);
+                            }
+
+                            //var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relatedWork.fields.Title);
+                            //csv.AppendLine(relatedline);
+                        }
+
+                        else if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                        {
+                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                            var relTitle = relatedWork.fields.Title.Replace(",", "");
+                            var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                            csv.AppendLine(relatedline);
                         }
                     }
                     count++;
@@ -253,24 +288,53 @@ namespace DeviceProfileSample
                 else if (fields.WorkItemType == "Task")
                 {
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                    var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
+                    csv.AppendLine(newline);
 
                     foreach (var x in workByIdRes.relations)
                     {
                         if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
                         {
                             var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + relatedWork.fields.Title);
+                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t" + relatedWork.fields.WorkItemType + "\t\t" + relatedWork.fields.Title);
+                            var relTitle = relatedWork.fields.Title.Replace(",", "");
+                            if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                            {
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                csv.AppendLine(relatedline);
+                            }
+                            else if (relatedWork.fields.WorkItemType == "Bug")
+                            {
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related Bug", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                csv.AppendLine(relatedline);
+                            }
                         }
                     }
                     count++;
                 }
-                else if(fields.WorkItemType == "PBI")
+                else if(fields.WorkItemType == "Product Backlog Item")
                 {
                     Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                    //var title = fields.Title.Replace(",", "");
+                    var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
+                    csv.AppendLine(newline);
+
+                    foreach (var x in workByIdRes.relations)
+                    {
+                        if(x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                        {
+                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                            var relTitle = relatedWork.fields.Title.Replace(",", "");
+                            var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                            csv.AppendLine(relatedline);
+                        }
+                    }
+
                     count++;
                 }
-                File.AppendAllText("OutputCSV.csv", csv.ToString());
+                
             }
+            File.WriteAllText("OutputCSV.csv", csv.ToString());
         }
 
         private static List<string> GetPreprodWorkItems(List<string> preProdWorkItemsList, List<string> prodSynkdWorkItemsList)
