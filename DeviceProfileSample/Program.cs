@@ -59,10 +59,14 @@ namespace DeviceProfileSample
             //    Console.WriteLine("Something went wrong.");
             //    Console.WriteLine("Message: " + ex.Message + "\n");
             //}
-            RunAsync().GetAwaiter().GetResult();
+            string token = string.Empty;
+            Console.WriteLine("Paste in your personal access token");
+            token = Console.ReadLine();
+            ApiController api = new ApiController(token);
+            RunAsync(api).GetAwaiter().GetResult();
         }
 
-        static async Task RunAsync()
+        static async Task RunAsync(ApiController api)
         {
             string pat = "2bjkoyzuxhwp5otnn2igv7btcsrzgaez3pqn3bzg2ujposwmsueq";
             var newPat = System.Text.Encoding.UTF8.GetBytes("user:" + pat);
@@ -90,6 +94,9 @@ namespace DeviceProfileSample
                 case 2:
                     preProdReleaseDefinitionID = 5;
                     prodReleaseDefinitionID = 6;
+                    break;
+                case 3:
+                    RunDemoMethod(api);
                     break;
                 default:
                     Console.WriteLine("Please choose one of the given options.");
@@ -215,6 +222,11 @@ namespace DeviceProfileSample
             //}
 
             //await ListProjects(bearerAuthHeader);
+        }
+
+        private static void RunDemoMethod(ApiController api)
+        {
+            
         }
 
         private static async Task ConsoleDump(AuthenticationHeaderValue bearerAuthHeader, List<string> filteredWorkItems)
