@@ -10,9 +10,9 @@ namespace DeviceProfileSample
     {
         public ApiController(string pat) : base(pat) { }
 
-        async Task GetAllReleases(AuthenticationHeaderValue authentication)
-        {
-            client.
-        }
+        //async Task GetAllReleases(AuthenticationHeaderValue authentication)
+        //{
+        //    client.
+        //}
     }
 }
