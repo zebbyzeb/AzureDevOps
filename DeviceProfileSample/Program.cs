@@ -1,4 +1,4 @@
-﻿//using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,11 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using DeviceProfileSample.Models;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
 using System.IO;
 using System.Threading;
 using System.Text;
@@ -22,6 +17,7 @@ namespace DeviceProfileSample
         public int count { get; set; }
         public List<T> value { get; set; }
     }
+
     public class Program
     {
         //============= Config [Edit these with your settings] =====================
@@ -31,34 +27,14 @@ namespace DeviceProfileSample
         //==========================================================================
 
         internal const string VSTSResourceId = "499b84ac-1321-427f-aa17-267ca6975798"; //Static value to target VSTS. Do not change
-        
 
         public static void Main(string[] args)
         {
-            //AuthenticationContext ctx = GetAuthenticationContext(null);
-            //AuthenticationResult result = null;
-            //try
-            //{
-            //    //DeviceCodeResult codeResult = ctx.AcquireDeviceCodeAsync(VSTSResourceId, clientId).Result;
-            //    //Console.WriteLine("You need to sign in.");
-            //    //Console.WriteLine("Message: " + codeResult.Message + "\n");
-            //    //result = ctx.AcquireTokenByDeviceCodeAsync(codeResult).Result;
-
-            //    //string pat = "2bjkoyzuxhwp5otnn2igv7btcsrzgaez3pqn3bzg2ujposwmsueq";
-            //    //var newPat = System.Text.Encoding.UTF8.GetBytes("user:"+pat);
-            //    //pat = System.Convert.ToBase64String(newPat);
-
-            //    //var bearerAuthHeader = new AuthenticationHeaderValue("Basic", pat);
-
-
-            //    //await ListProjects(bearerAuthHeader);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.ForegroundColor = ConsoleColor.Red;
-            //    Console.WriteLine("Something went wrong.");
-            //    Console.WriteLine("Message: " + ex.Message + "\n");
-            //}
+            //string token = string.Empty;
+            ////Console.WriteLine("Paste in your personal access token");
+            //token = Console.ReadLine();
+            //ApiController api = new ApiController(token);
+            
             RunAsync().GetAwaiter().GetResult();
         }
 
@@ -91,6 +67,9 @@ namespace DeviceProfileSample
                     preProdReleaseDefinitionID = 5;
                     prodReleaseDefinitionID = 6;
                     break;
+                case 3:
+                    //RunDemoMethod(api);
+                    break;
                 default:
                     Console.WriteLine("Please choose one of the given options.");
                     break;
@@ -122,219 +101,227 @@ namespace DeviceProfileSample
                 await ConsoleDump(bearerAuthHeader, filteredWorkItems);
             }
 
+            {
+                /////Getting list of
+                /////workitemID stringsProd
+                /////TestASWeb (definitionId = 2)
+                /////
+                //var responseTest = await ListTestReleases(bearerAuthHeader, testReleaseDefinitionID);
+                //var testWorkItemsList = new List<string>();
+                //foreach (var release in responseTest.value)
+                //{
+                //    var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
+                //    var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
+                //    var testWorkItems = await ListWorkItems(bearerAuthHeader, buildID);
+                //    foreach (var work in testWorkItems.value)
+                //    {
+                //        testWorkItemsList.Add(work.id);
+                //    }
+                //}
 
-            /////Getting list of
-            /////workitemID stringsProd
-            /////TestASWeb (definitionId = 2)
-            /////
-            //var responseTest = await ListTestReleases(bearerAuthHeader, testReleaseDefinitionID);
-            //var testWorkItemsList = new List<string>();
-            //foreach (var release in responseTest.value)
-            //{
-            //    var releaseRes = await GetReleaseById(bearerAuthHeader, release.id);
-            //    var buildID = Int32.Parse(releaseRes.artifacts.First().definitionReference.version.id);
-            //    var testWorkItems = await ListWorkItems(bearerAuthHeader, buildID);
-            //    foreach (var work in testWorkItems.value)
-            //    {
-            //        testWorkItemsList.Add(work.id);
-            //    }
-            //}
-
-            //Console.WriteLine("-------------------------");
-            //foreach(var item in testWorkItemsList)
-            //    Console.WriteLine(item);
-
-
-
-            /////Getting list of
-            /////workitemID stringsProd
-            /////Prod Synkd Cloud Services (definitionId=6)
-            //var responseProd = await ListReleasesInProd(bearerAuthHeader);
-            //var prodWorkItemsList = new List<string>();
-            //foreach (var release in responseProd.value)
-            //{
-            //    var prodReleaseRes = await GetProdReleaseById(bearerAuthHeader, release.id);
-
-            //    var buildID = Int32.Parse(prodReleaseRes.artifacts.First().definitionReference.version.id);
-
-            //    var prodWorkItems = await ListProdWorkItems(bearerAuthHeader, buildID);
-
-            //    foreach(var prodWork in prodWorkItems.value)
-            //    {
-            //        prodWorkItemsList.Add(prodWork.id);
-            //    }
-            //}
+                //Console.WriteLine("-------------------------");
+                //foreach(var item in testWorkItemsList)
+                //    Console.WriteLine(item);
 
 
-            //Console.WriteLine("Count of workitems in preprod + prod: " + preProdWorkItemsList.Count);//before comparing
-            //Console.WriteLine(prodWorkItemsList.Count);
-            //foreach(var pItem in prodWorkItemsList)
-            //{
-            //    for(var i=0; i < preProdWorkItemsList.Count; i++)
-            //    {
-            //        if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
-            //        {
-            //            preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
-            //        }
-            //    }
-            //}
-            //Console.WriteLine("Count of workitems in preprod: " + preProdWorkItemsList.Count);//After Comparing
+
+                /////Getting list of
+                /////workitemID stringsProd
+                /////Prod Synkd Cloud Services (definitionId=6)
+                //var responseProd = await ListReleasesInProd(bearerAuthHeader);
+                //var prodWorkItemsList = new List<string>();
+                //foreach (var release in responseProd.value)
+                //{
+                //    var prodReleaseRes = await GetProdReleaseById(bearerAuthHeader, release.id);
+
+                //    var buildID = Int32.Parse(prodReleaseRes.artifacts.First().definitionReference.version.id);
+
+                //    var prodWorkItems = await ListProdWorkItems(bearerAuthHeader, buildID);
+
+                //    foreach(var prodWork in prodWorkItems.value)
+                //    {
+                //        prodWorkItemsList.Add(prodWork.id);
+                //    }
+                //}
 
 
-            /////print the list of workitems in preprod,
-            /////with areapath, iteration,
-            /////item type and status
-            //int countPreProd = 1;
-            //foreach (var item in preProdWorkItemsList)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //foreach (var item in preProdWorkItemsList)
-            //{
-            //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-            //    var fields = workByIdRes.fields;
-            //    Console.WriteLine(countPreProd + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
-            //    countPreProd++;
-            //    //unassigned work items are throwing null exception
-            //}
+                //Console.WriteLine("Count of workitems in preprod + prod: " + preProdWorkItemsList.Count);//before comparing
+                //Console.WriteLine(prodWorkItemsList.Count);
+                //foreach(var pItem in prodWorkItemsList)
+                //{
+                //    for(var i=0; i < preProdWorkItemsList.Count; i++)
+                //    {
+                //        if (string.Compare(pItem, preProdWorkItemsList[i]) == 0)
+                //        {
+                //            preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
+                //        }
+                //    }
+                //}
+                //Console.WriteLine("Count of workitems in preprod: " + preProdWorkItemsList.Count);//After Comparing
 
-            //Console.WriteLine("---------------------\n---------------------");
 
-            //int countProdItem = 1;
-            //foreach (var item in prodWorkItemsList)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //foreach (var item in prodWorkItemsList)
-            //{
-            //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-            //    var fields = workByIdRes.fields;
-            //    Console.WriteLine(countProdItem + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
-            //    countProdItem++;
-            //    //unassigned work items are throwing null exception
-            //}
+                /////print the list of workitems in preprod,
+                /////with areapath, iteration,
+                /////item type and status
+                //int countPreProd = 1;
+                //foreach (var item in preProdWorkItemsList)
+                //{
+                //    Console.WriteLine(item);
+                //}
+                //foreach (var item in preProdWorkItemsList)
+                //{
+                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                //    var fields = workByIdRes.fields;
+                //    Console.WriteLine(countPreProd + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                //    countPreProd++;
+                //    //unassigned work items are throwing null exception
+                //}
 
-            //await ListProjects(bearerAuthHeader);
+                //Console.WriteLine("---------------------\n---------------------");
+
+                //int countProdItem = 1;
+                //foreach (var item in prodWorkItemsList)
+                //{
+                //    Console.WriteLine(item);
+                //}
+                //foreach (var item in prodWorkItemsList)
+                //{
+                //    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                //    var fields = workByIdRes.fields;
+                //    Console.WriteLine(countProdItem + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t" + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State);
+                //    countProdItem++;
+                //    //unassigned work items are throwing null exception
+                //}
+
+                //await ListProjects(bearerAuthHeader);
+            }
+        }
+
+        private static void RunDemoMethod(ApiController api)
+        {
+            
         }
 
         private static async Task ConsoleDump(AuthenticationHeaderValue bearerAuthHeader, List<string> filteredWorkItems)
         {
-            int count = 1;
-            var csv = new StringBuilder();
-
-            csv.AppendLine(string.Format("{0},{1},{2},{3},{4}", "\t", "WorkItemID", "WorkItemType", "State", "Title"));
-
-            foreach (var item in filteredWorkItems)
+            if (filteredWorkItems.Count == 0)
+                Console.WriteLine("Looks like a recent release was made.");
+            else
             {
-                
-                List<string> parentURL = new List<string>();
+                int count = 1;
+                var csv = new StringBuilder();
 
-                var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
-                var fields = workByIdRes.fields;
-                //if (fields.WorkItemType == "Product Backlog Item")
-                //    fields.WorkItemType = "PBI";
-                if (fields.State == "Ready for Testing")
-                    fields.State = "Ready";
-                //if (fields.Title.Length > 100)
-                //    fields.Title = fields.Title.Substring(0, 100);
-                var title = fields.Title.Replace(",", "");
-                if (fields.WorkItemType == "Bug")
+                csv.AppendLine(string.Format("{0},{1},{2},{3},{4}", "\t", "WorkItemID", "WorkItemType", "State", "Title"));
+
+                foreach (var item in filteredWorkItems)
                 {
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    var newline = string.Format("{0},{1},{2},{3},{4}","Base",item,fields.WorkItemType,fields.State,title);
-                    csv.AppendLine(newline);
-                    foreach (var x in workByIdRes.relations)
+
+                    List<string> parentURL = new List<string>();
+
+                    var workByIdRes = await GetWorkById(bearerAuthHeader, Int32.Parse(item));
+                    var fields = workByIdRes.fields;
+                    //if (fields.WorkItemType == "Product Backlog Item")
+                    //    fields.WorkItemType = "PBI";
+                    if (fields.State == "Ready for Testing")
+                        fields.State = "Ready";
+                    //if (fields.Title.Length > 100)
+                    //    fields.Title = fields.Title.Substring(0, 100);
+                    var title = fields.Title.Replace(",", "");
+                    if (fields.WorkItemType == "Bug")
                     {
-                        if (x.rel == "System.LinkTypes.Related")
+                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                        var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
+                        csv.AppendLine(newline);
+                        foreach (var x in workByIdRes.relations)
                         {
-                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            //if (relatedWork.fields.WorkItemType == "Product Backlog Item")
-                            //    fields.WorkItemType = "PBI";
-                            if (relatedWork.fields.WorkItemType == "Test Case")
-                                continue;
-                            if (relatedWork.fields.State == "Ready for Testing")
-                                relatedWork.fields.State = "Ready";
-                            var relTitle = relatedWork.fields.Title.Replace(",", "");
-
-                            if(relatedWork.fields.WorkItemType == "Product Backlog Item")
+                            if (x.rel == "System.LinkTypes.Related")
                             {
-                                Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
+                                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                                //if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                                //    fields.WorkItemType = "PBI";
+                                if (relatedWork.fields.WorkItemType == "Test Case")
+                                    continue;
+                                if (relatedWork.fields.State == "Ready for Testing")
+                                    relatedWork.fields.State = "Ready";
+                                var relTitle = relatedWork.fields.Title.Replace(",", "");
 
-                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                                {
+                                    Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
+
+                                    var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                    csv.AppendLine(relatedline);
+                                }
+                                else if (relatedWork.fields.WorkItemType == "Bug")
+                                {
+                                    Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
+
+                                    var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related Bug", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                    csv.AppendLine(relatedline);
+                                }
+                            }
+
+                            else if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                            {
+                                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                                var relTitle = relatedWork.fields.Title.Replace(",", "");
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
                                 csv.AppendLine(relatedline);
                             }
-                            else if(relatedWork.fields.WorkItemType == "Bug")
-                            {
-                                Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t\t" + title);
-
-                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
-                                csv.AppendLine(relatedline);
-                            }
-
-                            //var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relatedWork.fields.Title);
-                            //csv.AppendLine(relatedline);
                         }
-
-                        else if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
-                        {
-                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            var relTitle = relatedWork.fields.Title.Replace(",", "");
-                            var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
-                            csv.AppendLine(relatedline);
-                        }
+                        count++;
                     }
-                    count++;
-                }
-                else if (fields.WorkItemType == "Task")
-                {
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
-                    csv.AppendLine(newline);
-
-                    foreach (var x in workByIdRes.relations)
+                    else if (fields.WorkItemType == "Task")
                     {
-                        if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+                        var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
+                        csv.AppendLine(newline);
+
+                        foreach (var x in workByIdRes.relations)
                         {
-                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t" + relatedWork.fields.WorkItemType + "\t\t" + relatedWork.fields.Title);
-                            var relTitle = relatedWork.fields.Title.Replace(",", "");
-                            if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
                             {
-                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
-                                csv.AppendLine(relatedline);
-                            }
-                            else if (relatedWork.fields.WorkItemType == "Bug")
-                            {
-                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related Bug", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
-                                csv.AppendLine(relatedline);
+                                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                                Console.WriteLine("\t" + "Related: " + "\t\t" + relatedWork.id + "\t\t" + relatedWork.fields.State + "\t" + relatedWork.fields.WorkItemType + "\t\t" + relatedWork.fields.Title);
+                                var relTitle = relatedWork.fields.Title.Replace(",", "");
+                                if (relatedWork.fields.WorkItemType == "Product Backlog Item")
+                                {
+                                    var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related PBI", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                    csv.AppendLine(relatedline);
+                                }
+                                else if (relatedWork.fields.WorkItemType == "Bug")
+                                {
+                                    var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Related Bug", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                    csv.AppendLine(relatedline);
+                                }
                             }
                         }
+                        count++;
                     }
-                    count++;
-                }
-                else if(fields.WorkItemType == "Product Backlog Item")
-                {
-                    Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
-                    //var title = fields.Title.Replace(",", "");
-                    var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
-                    csv.AppendLine(newline);
-
-                    foreach (var x in workByIdRes.relations)
+                    else if (fields.WorkItemType == "Product Backlog Item")
                     {
-                        if(x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                        Console.WriteLine(count + "\t" + item + "\t" + fields.AreaPath + "\t" + fields.IterationPath + "\t\t\t" + fields.WorkItemType + "\t\t" + fields.State + "\t" + fields.Title);
+
+                        var newline = string.Format("{0},{1},{2},{3},{4}", "Base", item, fields.WorkItemType, fields.State, title);
+                        csv.AppendLine(newline);
+
+                        foreach (var x in workByIdRes.relations)
                         {
-                            var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
-                            var relTitle = relatedWork.fields.Title.Replace(",", "");
-                            var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
-                            csv.AppendLine(relatedline);
+                            if (x.rel == "System.LinkTypes.Hierarchy-Reverse")
+                            {
+                                var relatedWork = await GetWorkById(bearerAuthHeader, null, x.url);
+                                var relTitle = relatedWork.fields.Title.Replace(",", "");
+                                var relatedline = string.Format("{0},{1},{2},{3},{4}", "--Parent Feature", relatedWork.id, relatedWork.fields.WorkItemType, relatedWork.fields.State, relTitle);
+                                csv.AppendLine(relatedline);
+                            }
                         }
+
+                        count++;
                     }
 
-                    count++;
                 }
-                
+                File.WriteAllText("OutputCSV.csv", csv.ToString());
             }
-            File.WriteAllText("OutputCSV.csv", csv.ToString());
         }
 
         private static List<string> GetPreprodWorkItems(List<string> preProdWorkItemsList, List<string> prodSynkdWorkItemsList)
@@ -349,6 +336,7 @@ namespace DeviceProfileSample
                     {
                         preProdWorkItemsList.Remove(preProdWorkItemsList[i]);
                         //isFound = true;
+                        i -= 1;
                     }
                 }
                 
@@ -376,7 +364,7 @@ namespace DeviceProfileSample
             return preProdWorkItemsList;
         }
 
-        static async Task<Response<Releases>> ListTestReleases(AuthenticationHeaderValue authHeader, int testReleaseDefinitionID)
+        static async Task<ResponseT<Releases>> ListTestReleases(AuthenticationHeaderValue authHeader, int testReleaseDefinitionID)
         {
             using (var client = new HttpClient())
             {
@@ -391,8 +379,8 @@ namespace DeviceProfileSample
                 // check to see if we have a succesfull respond
                 if (response.IsSuccessStatusCode)
                 {
-                    Response<Releases> res = null;
-                    res = await response.Content.ReadAsAsync<Response<Releases>>();
+                    ResponseT<Releases> res = null;
+                    res = await response.Content.ReadAsAsync<ResponseT<Releases>>();
                     return res;
                 }
                 return null;
@@ -551,7 +539,7 @@ namespace DeviceProfileSample
             }
         }
 
-        static async Task<Response<Releases>> ListReleases(AuthenticationHeaderValue authHeader, int releaseDefinitionID, Nullable<int> defEnvID)
+        static async Task<ResponseT<Releases>> ListReleases(AuthenticationHeaderValue authHeader, int releaseDefinitionID, Nullable<int> defEnvID)
         {
             using (var client = new HttpClient())
             {
@@ -571,8 +559,8 @@ namespace DeviceProfileSample
                 // check to see if we have a succesfull respond
                 if (response.IsSuccessStatusCode)
                 {
-                    Response<Releases> res = null;
-                    res = await response.Content.ReadAsAsync<Response<Releases>>();
+                    ResponseT<Releases> res = null;
+                    res = await response.Content.ReadAsAsync<ResponseT<Releases>>();
                     return res;
                 }
                 return null;
